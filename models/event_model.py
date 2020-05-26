@@ -2,7 +2,7 @@ import json
 from pymongo import errors
 from bson import json_util
 
-from db import db
+from utils.db import db
 
 class EventMethods():
     collection = db.events

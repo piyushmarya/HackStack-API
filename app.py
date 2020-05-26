@@ -9,20 +9,27 @@ from resources.admin_resource import (AdminLogin,
                                       AdminRegister,
                                       AdminChangePwd,
                                       GetUser)
-from resources.registration_resource import (Registration,
-                                             RegistrationById,
-                                             RegistrationType)
+from resources.event_registration_resource import (EventRegistration,
+                                             EventRegistrationById,
+                                             EventRegistrationType)
 from resources.documentation import Intro
 from resources.events_resource import Events, EventList
-from blacklist import BLACKLIST
+from resources.contact_resource import ContactAdmin
+from utils.status import (INVALID_TOKEN_ERROR,
+                         EXPIRED_TOKEN_ERROR,
+                         REVOKED_TOKEN_ERROR,
+                         MISSING_TOKEN_ERROR)
+from utils.blacklist import BLACKLIST
 
 parser = ConfigParser()
-parser.read('config.ini')
+parser.read('configurations/config.ini')
 
 app = Flask(__name__)
 CORS(app)
-app.config['SECRET_KEY']=parser.get('APP', 'SECRET_KEY')
+
+app.config['SECRET_KEY']=parser.get('API', 'SECRET_KEY')
 app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(parser.get('API', 'EXPIRE_TIME'))
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access','refresh']
 
@@ -30,7 +37,7 @@ jwt = JWTManager(app)
 
 @jwt.user_claims_loader
 def add_claims(identity):
-    if identity['username'] == parser.get('APP', 'ADMIN_NAME'):
+    if identity['username'] == parser.get('API', 'ADMIN_NAME'):
         return {'is_admin':True}
     return {'is_admin':False}
 
@@ -42,34 +49,22 @@ def check_blacklist(decrypted_token):
 
 @jwt.expired_token_loader
 def expired_error_message():
-    return {
-            "message":"Token has expired.",
-            "error_code":"expired_token"
-    },401
+    return EXPIRED_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.invalid_token_loader
 def invalid_error_message(error):
-    return{
-        "message":"Invalid Token.",
-        "error_code":"invalid_token"
-    },401
+    return INVALID_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.unauthorized_loader
 def missing_header_message(error):
-    return{
-        "message":"JWT not found in request.",
-        "error_code":"missing_jwt"
-    },401
+    return MISSING_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.revoked_token_loader
 def revoked_error_message():
-    return{
-        "message":"Login Again to access.",
-        "error_code":"token_revoked"
-    },401
+    return REVOKED_TOKEN_ERROR.to_json(), 401
 
 
 api=Api(app)
@@ -79,12 +74,12 @@ api.add_resource(AdminLogin,'/admin/login')
 api.add_resource(AdminLogout,'/admin/logout')
 api.add_resource(AdminChangePwd,'/admin/changepwd')
 api.add_resource(GetUser,'/admin/getuser')
-api.add_resource(RegistrationById,'/admin/registrationid/<string:registration_id>')
-api.add_resource(Registration,'/admin/registration/all')
-api.add_resource(RegistrationType,'/admin/registration/type/<string:event_name>')
+api.add_resource(EventRegistrationById,'/admin/registrationid/<string:registration_id>')
+api.add_resource(EventRegistration,'/admin/registration/all')
+api.add_resource(EventRegistrationType,'/admin/registration/type/<string:event_name>')
 api.add_resource(Events,'/event')
 api.add_resource(EventList,'/event/all')
-#api.add_resource(ContactAdmin,'/contact')
+api.add_resource(ContactAdmin,'/contact')
 
 
 if __name__ == "__main__":

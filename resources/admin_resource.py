@@ -9,8 +9,20 @@ from flask_jwt_extended import (create_access_token,
                                 get_raw_jwt,
                                 get_jwt_claims)
 
-from blacklist import BLACKLIST
+from utils.blacklist import BLACKLIST
 from models.admin_model import AdminMethods
+from utils.status import (INVALID_CREDENTIALS_ERROR,
+                          REGISTER_USER_ERROR,
+                          INSUFFICIENT_PRIVELEGES_ERROR,
+                          USER_EXISTS_ERROR,
+                          REGISTRATION_ERROR,
+                          UNKNOWN_ERROR,
+                          CHANGE_PASSWORD_ERROR,
+                          INCORRECT_OLD_PASSWORD_ERROR,
+                          USER_CREATED,
+                          USER_DELETED,
+                          LOGOUT,
+                          PASSWORD_CHANGED)
 
 admin_parser = reqparse.RequestParser()
 admin_parser.add_argument('username',
@@ -34,20 +46,18 @@ class AdminRegister(Resource):
         """
         claims = get_jwt_claims()
         if not claims['is_admin']:
-            return {'message': 'Super Admin privilege required.'}, 401
+            return INSUFFICIENT_PRIVELEGES_ERROR.to_json(), 403
         data = admin_parser.parse_args()
         admin_data = AdminMethods.fetch_by_username(data['username'])
         if admin_data:
-            return{"message":"Admin already exists"},400
+            return USER_EXISTS_ERROR.to_json(),400
         if admin_data is None:
             data['uuid']=str(uuid4())
             admin_obj = AdminMethods(**data)
             if admin_obj.save_to_db():
-                return {"message":"User Registered"},201
-            return {
-                "message":"Unknown error occured while registring.Try Again"
-                },501
-        return {"message":"Unknown error occured.Try Again."},501
+                return USER_CREATED.to_json(), 201
+            return REGISTRATION_ERROR.to_json(),501
+        return UNKNOWN_ERROR.to_json(), 501
 
 
 class AdminLogin(Resource):
@@ -60,9 +70,9 @@ class AdminLogin(Resource):
         data = admin_parser.parse_args()
         admin = AdminMethods.fetch_by_username(data['username'])
         if admin is None:
-            return{"message":"Register Admin first"},400
+            return REGISTER_USER_ERROR.to_json(), 400
         if admin is False:
-            return {"message":"Unknown error occured"},501
+            return UNKNOWN_ERROR.to_json(), 501
         if admin and sha256_crypt.verify(data["password"], admin["password"]):
             identity={"uuid":admin['uuid'],
                       "username":data['username']}
@@ -72,7 +82,7 @@ class AdminLogin(Resource):
                 "access_token":access_token,
                 "refresh_token":refresh_token
             },200
-        return {"message":"Invalid Credentials"},401
+        return INVALID_CREDENTIALS_ERROR.to_json(), 400
 
 
 class AdminLogout(Resource):
@@ -86,7 +96,7 @@ class AdminLogout(Resource):
         """
         jti = get_raw_jwt()['jti']
         BLACKLIST.add(jti)
-        return {"message":"Log Out Successful"},201
+        return LOGOUT.to_json(), 201
 
 
 class AdminChangePwd(Resource):
@@ -116,20 +126,18 @@ class AdminChangePwd(Resource):
         admin = AdminMethods.fetch_by_username(data['username'])
         jwt_username = get_jwt_identity()['username']
         if admin is None:
-            return{"message":"Register Admin first"},400
+            return REGISTER_USER_ERROR.to_json(),400
         if  admin['username'] != jwt_username:
-            return {"message":"Unauthourized"},401
+            return INSUFFICIENT_PRIVELEGES_ERROR.to_json(),403
         if admin and sha256_crypt.verify(data["old_password"], admin["password"]):
             admin_obj = AdminMethods(data['username'], data['new_password'])
             if admin_obj.change_pwd():
-                return {"message":"Password Changed."},201
+                return PASSWORD_CHANGED.to_json(), 201
             else:
-                return {
-                    "message":"Unknown error occured while changing password. Try again."
-                    },501
+                return CHANGE_PASSWORD_ERROR.to_json(), 501
         else:
-            return {"message":"Old password is incorrect"},400
-        return {"message":"Unknown error occured"},501
+            return INCORRECT_OLD_PASSWORD_ERROR.to_json(),400
+        return UNKNOWN_ERROR.to_json(),501
 
 
 class GetUser(Resource):

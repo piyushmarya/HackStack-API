@@ -1,7 +1,7 @@
 from passlib.hash import sha256_crypt
 from pymongo import errors
 
-from db import db
+from utils.db import db
 
 
 class AdminMethods:

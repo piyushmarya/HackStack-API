@@ -4,6 +4,14 @@ from flask_jwt_extended import (jwt_required,
                                 get_jwt_claims)
 
 from models.event_model import EventMethods
+from utils.status import (UNKNOWN_ERROR,
+                          INSUFFICIENT_PRIVELEGES_ERROR,
+                          NO_EVENT_ERROR,
+                          ONGOING_EVENT_ERROR,
+                          EVENT_ADD_ERROR,
+                          EVENT_DELETE_ERROR,
+                          EVENT_ADDED,
+                          EVENT_DELETED)
 
 event_parser = reqparse.RequestParser()
 event_parser.add_argument('event_name',
@@ -31,9 +39,9 @@ class Events(Resource):
             return event_names,200
         try:
             if not len(event_names):
-                return{"message":"No Events"},400
+                return NO_EVENT_ERROR.to_json(), 400
         except TypeError:
-            return{"message":"Unknown error occured, Try again in some time"},501
+            return UNKNOWN_ERROR.to_json(), 501
 
     @jwt_required
     def post(self):
@@ -45,16 +53,14 @@ class Events(Resource):
         data = event_parser.parse_args()
         event_data = EventMethods.find_by_event_name(data["event_name"])
         if event_data:
-            return {"message":"It is an ongoing event,change event name"},400
+            return ONGOING_EVENT_ERROR.to_json(), 400
         if event_data is None:
             data['username'] = get_jwt_identity()['username']
             event_obj = EventMethods(**data)
             if event_obj.save_to_db():
-                return {"message":"Event Added"},201
-            return {
-                "message":"Unknown error occured while registring.Try Again"
-                },501
-        return{"message" : "Unknown error occured"},501
+                return EVENT_ADDED.to_json(), 201
+            return EVENT_ADD_ERROR.to_json(), 501
+        return UNKNOWN_ERROR.to_json(), 501
 
     @jwt_required
     def delete(self):
@@ -70,17 +76,17 @@ class Events(Resource):
             if not claims['is_admin']:
                 jwt_id = get_jwt_identity()['username']
                 if event_data['username'] != jwt_id:
-                    return {"message":"Unauthorized"},401
+                    return INSUFFICIENT_PRIVELEGES_ERROR.to_json(), 403
                 data['username'] = jwt_id
             if claims['is_admin']:
                 data['username'] = event_data['username']
             event_obj = EventMethods(**data)
             if event_obj.delete_from_db():
-                return {"message":"Event deleted"},202
-            return {"message":"Unknown error occured while deleting, Try again in some time"},501
+                return EVENT_DELETED.to_json(), 202
+            return EVENT_DELETE_ERROR.to_json(), 501
         if event_data is None:
-            return {"message":"No event found"},400
-        return {"message":"Unknown error occured"},501
+            return NO_EVENT_ERROR.to_json(), 400
+        return UNKNOWN_ERROR.to_json(), 501
 
 
 class EventList(Resource):
@@ -95,6 +101,6 @@ class EventList(Resource):
             return event_names,200
         try:
             if not len(event_names):
-                return{"message":"No Events"},400
+                return NO_EVENT_ERROR.to_json(), 400
         except TypeError:
-            return{"message":"Unknown error occured"},501
+            return UNKNOWN_ERROR.to_json(), 501
