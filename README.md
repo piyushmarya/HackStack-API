@@ -54,7 +54,7 @@ Sample response:
     'registered_user':True/False
 }
 ```
-<br>
+
 ## `/admin/logout`
 This endpoint can be used to logout.
 Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
@@ -75,7 +75,7 @@ Sample response:
     "status": "Success"
 }
 ```
-<br>
+
 ## `/admin/changepwd`
 This endpoint can be used to change an admin's password.
 
@@ -105,7 +105,7 @@ Sample response:
     'status':'Success'
 }
 ```
-<br>
+
 ## `/admin/register`
 This endpoint can be used to register a new admin.
 `CAN ONLY BE USED BY THE SUPERADMIN`
@@ -134,7 +134,7 @@ Sample response:
     'status':'Success'
 }
 ```
-<br>
+
 ## `/admin/id`
 This endpoint can be used to get uuid and name of an admin.
 
@@ -156,7 +156,7 @@ Sample response:
     }
 }
 ```
-<br>
+
 ## `/admin/all`
 This endpoint can be used to get a list of all admins.
 `CAN ONLY BE USED BY THE SUPERADMIN`
@@ -184,7 +184,7 @@ Sample response:
 ]
 ```
 <br>
-<br>
+
 # Events
 
 ## `/event`
@@ -212,7 +212,7 @@ Sample response:
     'status':'Success'
 }
 ```
-<br>
+
 ## `/event`
 This endpoint can be used to get a list of all events for the logged-in admin.
 
@@ -239,7 +239,7 @@ Sample response:
     
 ]
 ```
-<br>
+
 ## `/event`
 This endpoint can be used to delete an event.
 
@@ -265,8 +265,8 @@ Sample response:
     'status':'Success'
 }
 ```
-<br>
-<br>
+
+
 # Contact Us
 
 ## `/contact`
@@ -298,7 +298,7 @@ Sample response:
 }
 ```
 <br>
-<br>
+
 # Event Registrations
 
 ## `/registration`
@@ -326,8 +326,8 @@ Sample response:
     'registration_number':'some_number'
 }
 ```
-<br>
-## `registration`
+
+## `/registration`
 This endpoint can be used to fetch a list of all registrations hosted by the logged in admin.
 
 Request Type: `GET` <br> 
@@ -365,8 +365,8 @@ Sample response:
     }
 ]
 ```
-<br>
-## `registration/<string:registration_number>`
+
+## `/registration/<string:registration_number>`
 This endpoint can be used to get the details of registration using the registration number.
 
 Request Type: `GET` <br> 
@@ -392,7 +392,7 @@ Sample response:
 }
 ```
 
-<br><br>
+
 # Errors and Exceptions
 Below are the error code and their corresponding messages that will be returned in case of invalid API request.
 
