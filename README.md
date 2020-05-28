@@ -27,7 +27,7 @@ How to run:
 
 
 
-## `admin/login`
+## `/admin/login`
 This endpoint can be used to login an admin with their username and password.
 
 Request Type: `POST` <br> 
@@ -54,8 +54,8 @@ Sample response:
     'registered_user':True/False
 }
 ```
-
-## `admin/logout`
+<br>
+## `/admin/logout`
 This endpoint can be used to logout.
 Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
 Request Type: `GET` <br> 
@@ -75,8 +75,8 @@ Sample response:
     "status": "Success"
 }
 ```
-
-## `admin/changepwd`
+<br>
+## `/admin/changepwd`
 This endpoint can be used to change an admin's password.
 
 Request Type: `POST` <br> 
@@ -105,8 +105,8 @@ Sample response:
     'status':'Success'
 }
 ```
-
-## `admin/register`
+<br>
+## `/admin/register`
 This endpoint can be used to register a new admin.
 `CAN ONLY BE USED BY THE SUPERADMIN`
 
@@ -134,8 +134,8 @@ Sample response:
     'status':'Success'
 }
 ```
-
-## `admin/id`
+<br>
+## `/admin/id`
 This endpoint can be used to get uuid and name of an admin.
 
 Request Type: `GET` <br> 
@@ -156,8 +156,8 @@ Sample response:
     }
 }
 ```
-
-## `admin/all`
+<br>
+## `/admin/all`
 This endpoint can be used to get a list of all admins.
 `CAN ONLY BE USED BY THE SUPERADMIN`
 
@@ -184,7 +184,7 @@ Sample response:
 ]
 ```
 <br>
-
+<br>
 # Events
 
 ## `/event`
@@ -212,7 +212,7 @@ Sample response:
     'status':'Success'
 }
 ```
-
+<br>
 ## `/event`
 This endpoint can be used to get a list of all events for the logged-in admin.
 
@@ -239,7 +239,7 @@ Sample response:
     
 ]
 ```
-
+<br>
 ## `/event`
 This endpoint can be used to delete an event.
 
@@ -266,7 +266,7 @@ Sample response:
 }
 ```
 <br>
-
+<br>
 # Contact Us
 
 ## `/contact`
@@ -298,7 +298,7 @@ Sample response:
 }
 ```
 <br>
-
+<br>
 # Event Registrations
 
 ## `/registration`
@@ -326,7 +326,7 @@ Sample response:
     'registration_number':'some_number'
 }
 ```
-
+<br>
 ## `registration`
 This endpoint can be used to fetch a list of all registrations hosted by the logged in admin.
 
@@ -365,7 +365,7 @@ Sample response:
     }
 ]
 ```
-
+<br>
 ## `registration/<string:registration_number>`
 This endpoint can be used to get the details of registration using the registration number.
 
@@ -392,7 +392,7 @@ Sample response:
 }
 ```
 
-
+<br><br>
 # Errors and Exceptions
 Below are the error code and their corresponding messages that will be returned in case of invalid API request.
 
