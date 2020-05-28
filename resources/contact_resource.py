@@ -1,9 +1,14 @@
 import json
 from flask_restful import Resource, reqparse
+from flask_jwt_extended import jwt_required, get_jwt_claims
 from pymongo import errors
 from bson import json_util
 
 from utils.db import db
+from utils.status import (MESSAGE_LOAD_ERROR,
+                         MESSAGE_SENT,
+                         INSUFFICIENT_PRIVELEGES_ERROR,
+                         MESSAGE_SEND_ERROR)
 
 contact_parser = reqparse.RequestParser()
 contact_parser.add_argument('name',
@@ -23,18 +28,23 @@ contact_parser.add_argument('message',
 class ContactAdmin(Resource):
     messages_collection = db.messages
 
+    @jwt_required
     def get(self):
         try:
-            all_messages=list(self.messages_collection.find({}))
-            return json.loads(json_util.dumps(all_messages)),200
+            claims = get_jwt_claims()
+            if claims['is_admin']:
+                all_messages=list(self.messages_collection.find({}))
+                return json.loads(json_util.dumps(all_messages)),200
+            else:
+                return INSUFFICIENT_PRIVELEGES_ERROR.to_json(),400
         except errors.PyMongoError as e:
             ## TODO: Logging
-            return {"message":"Unable to load message"},501
+            return MESSAGE_LOAD_ERROR.to_json(),501
 
     def post(self):
         parser = contact_parser.parse_args()
         try:
             self.messages_collection.insert_one(parser)
-            return {"message":"Thank you, Your message is sent and we will get in touch soon"}, 201
+            return MESSAGE_SENT.to_json(), 201
         except errors as e:
-            return {"message":"Unable to send, Try again"},501
+            return MESSAGE_SEND_ERROR.to_json(),501

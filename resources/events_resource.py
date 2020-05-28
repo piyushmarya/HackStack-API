@@ -4,6 +4,7 @@ from flask_jwt_extended import (jwt_required,
                                 get_jwt_claims)
 
 from models.event_model import EventMethods
+from models.event_registration_model import RegistrationMethods
 from utils.status import (UNKNOWN_ERROR,
                           INSUFFICIENT_PRIVELEGES_ERROR,
                           NO_EVENT_ERROR,
@@ -81,7 +82,7 @@ class Events(Resource):
             if claims['is_admin']:
                 data['username'] = event_data['username']
             event_obj = EventMethods(**data)
-            if event_obj.delete_from_db():
+            if event_obj.delete_from_db() and RegistrationMethods.delete_event_registrations(data['event_name']):
                 return EVENT_DELETED.to_json(), 202
             return EVENT_DELETE_ERROR.to_json(), 501
         if event_data is None:

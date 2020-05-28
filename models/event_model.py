@@ -57,9 +57,9 @@ class EventMethods():
         """
         try:
             if username:
-                all_events=list(cls.collection.find({"username":username}))
+                all_events=list(cls.collection.find({"username":username},{"_id":0} ))
             else:
-                all_events=list(cls.collection.find({}))
+                all_events=list(cls.collection.find({},{"_id":0}))
             return json.loads(json_util.dumps(all_events))
         except errors.PyMongoError as e:
             ## TODO: Logging

@@ -3,8 +3,8 @@ from flask_restful import Resource
 
 class Intro(Resource):
     def get(self):
-        return [
-            {
+        return {"ROUTES":
+            [{
                 "Endpoint":"/admin/register",
                 "Description":"Registor a new admin",
                 "Body":{"username":"username",
@@ -34,8 +34,14 @@ class Intro(Resource):
                 "Method":"POST"
             },
             {
-                "Endpoint":"/admin/get_user",
-                "Description":"Get user id",
+                "Endpoint":"/admin/id",
+                "Description":"Get admin id",
+                "Header":"jwt_token",
+                "Method":"GET"
+            },
+            {
+                "Endpoint":"/admin/all",
+                "Description":"Get list of all admins",
                 "Header":"jwt_token",
                 "Method":"GET"
             },
@@ -46,10 +52,24 @@ class Intro(Resource):
                 "Method":"GET"
             },
             {
-                "Endpoint":"/admin/registration/all",
-                "Description":"Get all registrations",
+                "Endpoint":"/admin/registration",
+                "Description":"Get all registrations of the admin that requests.",
                 "Header":"jwt_token",
                 "Method":"GET"
+            },
+            {
+                "Endpoint":"/admin/registration",
+                "Description":"Register for an event.",
+                "form-data":{
+                    "name":"name",
+                    "email":"email",
+                    "mobile_number":"mobile_number",
+                    "image":"image",
+                    "type":"type",
+                    "no_of_tickets":"no_of_tickets",
+                    "event_name":"event_name"
+                },
+                "Method":"POST"
             },
             {
                 "Endpoint":"/admin/registration/type",
@@ -59,20 +79,20 @@ class Intro(Resource):
             },
             {
                 "Endpoint":"/event",
-                "Description":"get events for the user",
+                "Description":"get events for the admin",
                 "Method":"GET",
                 "Header":"jwt_token",
             },
             {
                 "Endpoint":"/event",
-                "Description":"Add events for the user",
+                "Description":"create new event for the admin",
                 "Body":{"event_name":"event_name"},
                 "Header":"jwt_token",
                 "Method":"Post"
             },
             {
                 "Endpoint":"/event",
-                "Description":"Add events for the user",
+                "Description":"Delete event for the admin",
                 "Body":{"event_name":"event_name"},
                 "Header":"jwt_token",
                 "Method":"Delete"
@@ -89,5 +109,11 @@ class Intro(Resource):
                     "email":"someone@something.com",
                     "message":"Your message"},
             "Method":"Post"
+            },
+            {
+            "Endpoint":"/contact",
+            "Description":"Contact us",
+            "Header":"jwt_token",
+            "Method":"GET"
             }
-        ]
+        ]}, 200

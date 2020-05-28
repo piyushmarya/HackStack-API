@@ -1,11 +1,12 @@
+import json
 from passlib.hash import sha256_crypt
 from pymongo import errors
-
+from bson import json_util
 from utils.db import db
 
 
 class AdminMethods:
-    collection = db.admins
+    admin_collection = db.admins
 
     def __init__(self,username, password, uuid=None):
         self.username = username
@@ -31,7 +32,7 @@ class AdminMethods:
         Returns: True/False
         """
         try:
-            self.collection.update_one({"username":self.username},
+            self.admin_collection.update_one({"username":self.username},
                                        {"$set":{"password":self.password}})
         except errors.PyMongoError as e:
             ## TODO: Logging
@@ -48,7 +49,7 @@ class AdminMethods:
         Returns: True/False
         """
         try:
-            self.collection.insert_one(self.create_json())
+            self.admin_collection.insert_one(self.create_json())
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
@@ -64,7 +65,7 @@ class AdminMethods:
         Returns: True/False
         """
         try:
-            self.collection.delete_one(self.create_json())
+            self.admin_collection.delete_one(self.create_json())
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
@@ -81,7 +82,7 @@ class AdminMethods:
         Returns: AdminDetails/None/False
         """
         try:
-            return cls.collection.find_one({"username":username})
+            return cls.admin_collection.find_one({"username":username})
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
@@ -94,7 +95,23 @@ class AdminMethods:
         Returns: AdminDetails/None/False
         """
         try:
-            return cls.collection.find_one({"uuid":uuid})
+            return cls.admin_collection.find_one({"uuid":uuid})
+        except errors.PyMongoError as e:
+            ## TODO: Logging
+            return False
+
+    @classmethod
+    def get_all_admins(cls):
+        """
+        Finds all administrators from the database
+        Parameters:
+        Returns: AdminDetails/False
+        """
+        try:
+            all_users = list(cls.admin_collection.find({},{"username":1,
+                                                           "uuid":1,
+                                                           "_id":0}))
+            return json.loads(json_util.dumps(all_users))
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False

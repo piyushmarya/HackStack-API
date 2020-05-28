@@ -8,10 +8,13 @@ from resources.admin_resource import (AdminLogin,
                                       AdminLogout,
                                       AdminRegister,
                                       AdminChangePwd,
-                                      GetUser)
+                                      GetAdminId,
+                                      GetAllAdmins)
+
 from resources.event_registration_resource import (EventRegistration,
                                              EventRegistrationById,
                                              EventRegistrationType)
+
 from resources.documentation import Intro
 from resources.events_resource import Events, EventList
 from resources.contact_resource import ContactAdmin
@@ -37,6 +40,9 @@ jwt = JWTManager(app)
 
 @jwt.user_claims_loader
 def add_claims(identity):
+    """
+    Adds an extra claim to token if the super admin logs in.
+    """
     if identity['username'] == parser.get('API', 'ADMIN_NAME'):
         return {'is_admin':True}
     return {'is_admin':False}
@@ -44,26 +50,42 @@ def add_claims(identity):
 
 @jwt.token_in_blacklist_loader
 def check_blacklist(decrypted_token):
+    """
+    Checks whether the recieved token has been blacklisted from being used
+    further.
+    """
     return decrypted_token['jti'] in BLACKLIST
 
 
 @jwt.expired_token_loader
 def expired_error_message():
+    """
+    Returns custom message if the jwt token recieved is expired.
+    """
     return EXPIRED_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.invalid_token_loader
 def invalid_error_message(error):
+    """
+    Returns custom message if the jwt token recieved is invalid.
+    """
     return INVALID_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.unauthorized_loader
 def missing_header_message(error):
+    """
+    Returns custom message if the jwt token is missing in the request.
+    """
     return MISSING_TOKEN_ERROR.to_json(), 401
 
 
 @jwt.revoked_token_loader
 def revoked_error_message():
+    """
+    Returns custom message if the jwt token has been revoked.
+    """
     return REVOKED_TOKEN_ERROR.to_json(), 401
 
 
@@ -73,9 +95,10 @@ api.add_resource(AdminRegister,'/admin/register')
 api.add_resource(AdminLogin,'/admin/login')
 api.add_resource(AdminLogout,'/admin/logout')
 api.add_resource(AdminChangePwd,'/admin/changepwd')
-api.add_resource(GetUser,'/admin/getuser')
+api.add_resource(GetAdminId,'/admin/id')
+api.add_resource(GetAllAdmins,'/admin/all')
 api.add_resource(EventRegistrationById,'/admin/registrationid/<string:registration_id>')
-api.add_resource(EventRegistration,'/admin/registration/all')
+api.add_resource(EventRegistration,'/registration')
 api.add_resource(EventRegistrationType,'/admin/registration/type/<string:event_name>')
 api.add_resource(Events,'/event')
 api.add_resource(EventList,'/event/all')

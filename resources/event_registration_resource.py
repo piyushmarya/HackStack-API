@@ -1,13 +1,52 @@
-import urllib.parse
-from flask_restful import Resource
+from flask_restful import Resource,reqparse
+from flask import request,jsonify
+from uuid import uuid4
+from werkzeug.datastructures import FileStorage
 from flask_jwt_extended import jwt_required, get_jwt_claims, get_jwt_identity
 from models.event_registration_model import RegistrationMethods
 from models.event_model import EventMethods
 from utils.status import (NO_REGISTRATIONS_ERROR,
                           UNKNOWN_ERROR,
-                          INSUFFICIENT_PRIVELEGES_ERROR)
+                          INSUFFICIENT_PRIVELEGES_ERROR,
+                          REGISTRATION_EXISTS_ERROR)
+
 
 class EventRegistration(Resource):
+    registration_parser = reqparse.RequestParser()
+    registration_parser.add_argument('name',
+                        help="name is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('email',
+                        type=str,
+                        help="Email is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('type',
+                        type=str,
+                        help="registration type is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('no_of_tickets',
+                        type=str,
+                        help="Number of tickets is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('event_name',
+                        type=str,
+                        help="Event name is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('mobile_number',
+                        type=str,
+                        help="Mobile number is a required field",
+                        required=True,
+                        location='form')
+    registration_parser.add_argument('image',
+                        type=FileStorage,
+                        help="Image is a required field",
+                        required=True,
+                        location='files')
 
     @jwt_required
     def get(self):
@@ -34,6 +73,26 @@ class EventRegistration(Resource):
         except TypeError:
             return UNKNOWN_ERROR.to_json(), 501
 
+    def post(self):
+        """
+        Add new registration to the database.
+        Return:Request Status
+        """
+        data = self.registration_parser.parse_args()
+        registration_details = RegistrationMethods.validate_registration(data['email'],
+                                                                         data['event_name'])
+        if registration_details is not None:
+            return REGISTRATION_EXISTS_ERROR.to_json(), 400
+        elif registration_details is None:
+            data['registration_number'] = uuid4().hex
+            registration_obj = RegistrationMethods(**data)
+            if registration_obj.save_to_db():
+                return {"registration_number":data['registration_number']},201
+            else:
+                return UNKNOWN_ERROR.to_json(), 501
+        else:
+            return UNKNOWN_ERROR.to_json(), 501
+
 
 class EventRegistrationById(Resource):
 
@@ -44,12 +103,21 @@ class EventRegistrationById(Resource):
         Parameters:Registration Id
         Returns: Registration Details
         """
-        registration_details = RegistrationMethods.find_by_registration_id(registration_id)
-        if registration_details:
-            return registration_details,200
-        if registration_details is None:
-            return NO_REGISTRATIONS_ERROR.to_json(), 400
-        return UNKNOWN_ERROR.to_json(), 501
+        claims = get_jwt_claims()
+        if claims['is_admin']:
+            event_names = EventMethods.get_events()
+        else:
+            username = get_jwt_identity()['username']
+            event_names = EventMethods.get_events(username)
+        if event_names:
+            event=[ i["event_name"] for i in event_names]
+            registration_details = RegistrationMethods.find_by_registration_id(registration_id, event)
+            if registration_details:
+                return registration_details,200
+            if registration_details is None:
+                return NO_REGISTRATIONS_ERROR.to_json(), 400
+            return UNKNOWN_ERROR.to_json(), 501
+        return NO_REGISTRATIONS_ERROR.to_json(), 400
 
 
 class EventRegistrationType(Resource):

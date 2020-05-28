@@ -12,15 +12,16 @@ from flask_jwt_extended import (create_access_token,
 from utils.blacklist import BLACKLIST
 from models.admin_model import AdminMethods
 from utils.status import (INVALID_CREDENTIALS_ERROR,
-                          REGISTER_USER_ERROR,
+                          REGISTER_ADMIN_ERROR,
                           INSUFFICIENT_PRIVELEGES_ERROR,
-                          USER_EXISTS_ERROR,
+                          ADMIN_EXISTS_ERROR,
                           REGISTRATION_ERROR,
                           UNKNOWN_ERROR,
                           CHANGE_PASSWORD_ERROR,
                           INCORRECT_OLD_PASSWORD_ERROR,
-                          USER_CREATED,
-                          USER_DELETED,
+                          NO_ADMIN_ERROR,
+                          ADMIN_CREATED,
+                          ADMIN_DELETED,
                           LOGOUT,
                           PASSWORD_CHANGED)
 
@@ -50,12 +51,12 @@ class AdminRegister(Resource):
         data = admin_parser.parse_args()
         admin_data = AdminMethods.fetch_by_username(data['username'])
         if admin_data:
-            return USER_EXISTS_ERROR.to_json(),400
+            return ADMIN_EXISTS_ERROR.to_json(),400
         if admin_data is None:
             data['uuid']=str(uuid4())
             admin_obj = AdminMethods(**data)
             if admin_obj.save_to_db():
-                return USER_CREATED.to_json(), 201
+                return ADMIN_CREATED.to_json(), 201
             return REGISTRATION_ERROR.to_json(),501
         return UNKNOWN_ERROR.to_json(), 501
 
@@ -70,7 +71,7 @@ class AdminLogin(Resource):
         data = admin_parser.parse_args()
         admin = AdminMethods.fetch_by_username(data['username'])
         if admin is None:
-            return REGISTER_USER_ERROR.to_json(), 400
+            return REGISTER_ADMIN_ERROR.to_json(), 400
         if admin is False:
             return UNKNOWN_ERROR.to_json(), 501
         if admin and sha256_crypt.verify(data["password"], admin["password"]):
@@ -80,7 +81,10 @@ class AdminLogin(Resource):
             refresh_token = create_refresh_token(identity)
             return {
                 "access_token":access_token,
-                "refresh_token":refresh_token
+                "refresh_token":refresh_token,
+                "admin_name":data['username'],
+                "expires_in":3600,
+                "registered_user":True   
             },200
         return INVALID_CREDENTIALS_ERROR.to_json(), 400
 
@@ -126,7 +130,7 @@ class AdminChangePwd(Resource):
         admin = AdminMethods.fetch_by_username(data['username'])
         jwt_username = get_jwt_identity()['username']
         if admin is None:
-            return REGISTER_USER_ERROR.to_json(),400
+            return REGISTER_ADMIN_ERROR.to_json(),400
         if  admin['username'] != jwt_username:
             return INSUFFICIENT_PRIVELEGES_ERROR.to_json(),403
         if admin and sha256_crypt.verify(data["old_password"], admin["password"]):
@@ -140,7 +144,7 @@ class AdminChangePwd(Resource):
         return UNKNOWN_ERROR.to_json(),501
 
 
-class GetUser(Resource):
+class GetAdminId(Resource):
 
     @jwt_required
     def get(self):
@@ -149,4 +153,29 @@ class GetUser(Resource):
         Parameters:
         Returns: JSON message containing id
         """
+        claims = get_jwt_claims()
+        if claims["is_admin"]:
+            return {"id":get_jwt_identity(),"is_admin":True}, 201
         return {"id":get_jwt_identity()},201
+
+
+class GetAllAdmins(Resource):
+
+    @jwt_required
+    def get(self):
+        """
+        Returns names and uuid of all admins.
+        Parameters:
+        Return:List of admins
+        """
+        claims = get_jwt_claims()
+        if claims['is_admin']:
+            all_admins = AdminMethods.get_all_admins()
+            if all_admins:
+                return all_admins, 200
+            try:
+                if not len(all_admins):
+                    return NO_ADMIN_ERROR.to_json(), 400
+            except TypeError:
+                return UNKNOWN_ERROR.to_json(), 501
+        return INSUFFICIENT_PRIVELEGES_ERROR.to_json(), 401
