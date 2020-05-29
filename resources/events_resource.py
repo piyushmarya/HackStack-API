@@ -2,7 +2,6 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import (jwt_required,
                                 get_jwt_identity,
                                 get_jwt_claims)
-
 from models.event_model import EventMethods
 from models.event_registration_model import RegistrationMethods
 from utils.status import (UNKNOWN_ERROR,
@@ -100,6 +99,32 @@ class EventList(Resource):
         event_names = EventMethods.get_events()
         if event_names:
             return event_names,200
+        try:
+            if not len(event_names):
+                return NO_EVENT_ERROR.to_json(), 400
+        except TypeError:
+            return UNKNOWN_ERROR.to_json(), 501
+
+
+class EventRegistrationCount(Resource):
+
+    @jwt_required
+    def get(self):
+        """
+        Return a list of event and the registration count for each.
+        """
+        claims = get_jwt_claims()
+        if claims['is_admin']:
+            event_names = EventMethods.get_events()
+        else:
+            id = get_jwt_identity()
+            event_names = EventMethods.get_events(id['username'])
+        if event_names:
+            event_names_list = [i['event_name'] for i in event_names]
+            event_registration_count = RegistrationMethods.get_registration_count_by_event(event_names_list)
+            if event_registration_count:
+                return event_registration_count, 200
+            return UNKNOWN_ERROR.to_json(), 501
         try:
             if not len(event_names):
                 return NO_EVENT_ERROR.to_json(), 400

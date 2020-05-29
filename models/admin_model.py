@@ -1,7 +1,6 @@
 import json
 from passlib.hash import sha256_crypt
 from pymongo import errors
-from bson import json_util
 from utils.db import db
 
 
@@ -111,7 +110,7 @@ class AdminMethods:
             all_users = list(cls.admin_collection.find({},{"username":1,
                                                            "uuid":1,
                                                            "_id":0}))
-            return json.loads(json_util.dumps(all_users))
+            return all_users
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False

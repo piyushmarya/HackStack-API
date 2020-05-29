@@ -28,7 +28,7 @@ class EventRegistration(Resource):
                         required=True,
                         location='form')
     registration_parser.add_argument('no_of_tickets',
-                        type=str,
+                        type=int,
                         help="Number of tickets is a required field",
                         required=True,
                         location='form')
@@ -60,8 +60,8 @@ class EventRegistration(Resource):
             event_names = EventMethods.get_events()
             all_registrations = RegistrationMethods.find_all_registrations()
         else:
-            id = get_jwt_identity()['username']
-            event_names = EventMethods.get_events(id)
+            username = get_jwt_identity()['username']
+            event_names = EventMethods.get_events(username)
             event=[ i["event_name"] for i in event_names]
             all_registrations = RegistrationMethods.find_registration_by_event(event)
 
@@ -97,7 +97,7 @@ class EventRegistration(Resource):
 class EventRegistrationById(Resource):
 
     @jwt_required
-    def get(self, registration_id):
+    def get(self, registration_number):
         """
         Finds registration details corresponding to id from the database.
         Parameters:Registration Id
@@ -110,8 +110,8 @@ class EventRegistrationById(Resource):
             username = get_jwt_identity()['username']
             event_names = EventMethods.get_events(username)
         if event_names:
-            event=[ i["event_name"] for i in event_names]
-            registration_details = RegistrationMethods.find_by_registration_id(registration_id, event)
+            event_name_list=[ i["event_name"] for i in event_names]
+            registration_details = RegistrationMethods.find_by_registration_id(registration_number, event_name_list)
             if registration_details:
                 return registration_details,200
             if registration_details is None:
@@ -120,23 +120,23 @@ class EventRegistrationById(Resource):
         return NO_REGISTRATIONS_ERROR.to_json(), 400
 
 
-class EventRegistrationType(Resource):
-
-    @jwt_required
-    def get(self, event_name):
-        """
-        Finds the count of every registration type from the database.
-        Parameters:None
-        Returns: Registration Type Count/
-        """
-        claims = get_jwt_claims()
-        if claims['is_admin']:
-            event_names = EventMethods.get_events()
-            count_list = [RegistrationMethods.find_count_by_registration_type(i) for i in ["self", "corporate", "others", "group"]]
-            if all(count_list):
-                return {"self":count_list[0],
-                    "corporate":count_list[1],
-                    "others": count_list[2],
-                    "group" :count_list[3]
-                },200
-        return INSUFFICIENT_PRIVELEGES_ERROR.to_json(), 403
+# class EventRegistrationType(Resource):
+#
+#     @jwt_required
+#     def get(self, event_name):
+#         """
+#         Finds the count of every registration type from the database.
+#         Parameters:None
+#         Returns: Registration Type Count/
+#         """
+#         claims = get_jwt_claims()
+#         if claims['is_admin']:
+#             event_names = EventMethods.get_events()
+#             count_list = [RegistrationMethods.find_count_by_registration_type(i) for i in ["self", "corporate", "others", "group"]]
+#             if all(count_list):
+#                 return {"self":count_list[0],
+#                     "corporate":count_list[1],
+#                     "others": count_list[2],
+#                     "group" :count_list[3]
+#                 },200
+#         return INSUFFICIENT_PRIVELEGES_ERROR.to_json(), 403

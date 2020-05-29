@@ -12,11 +12,10 @@ from resources.admin_resource import (AdminLogin,
                                       GetAllAdmins)
 
 from resources.event_registration_resource import (EventRegistration,
-                                             EventRegistrationById,
-                                             EventRegistrationType)
+                                                   EventRegistrationById)
 
 from resources.documentation import Intro
-from resources.events_resource import Events, EventList
+from resources.events_resource import Events, EventList, EventRegistrationCount
 from resources.contact_resource import ContactAdmin
 from utils.status import (INVALID_TOKEN_ERROR,
                          EXPIRED_TOKEN_ERROR,
@@ -91,18 +90,18 @@ def revoked_error_message():
 
 api=Api(app)
 api.add_resource(Intro,'/')
-api.add_resource(AdminRegister,'/admin/register')
-api.add_resource(AdminLogin,'/admin/login')
-api.add_resource(AdminLogout,'/admin/logout')
-api.add_resource(AdminChangePwd,'/admin/changepwd')
-api.add_resource(GetAdminId,'/admin/id')
-api.add_resource(GetAllAdmins,'/admin/all')
-api.add_resource(EventRegistrationById,'/admin/registrationid/<string:registration_id>')
-api.add_resource(EventRegistration,'/registration')
-api.add_resource(EventRegistrationType,'/admin/registration/type/<string:event_name>')
-api.add_resource(Events,'/event')
-api.add_resource(EventList,'/event/all')
-api.add_resource(ContactAdmin,'/contact')
+api.add_resource(AdminRegister, '/admin/register')
+api.add_resource(AdminLogin, '/admin/login')
+api.add_resource(AdminLogout, '/admin/logout')
+api.add_resource(AdminChangePwd, '/admin/changepwd')
+api.add_resource(GetAdminId, '/admin/id')
+api.add_resource(GetAllAdmins, '/admin/all')
+api.add_resource(EventRegistrationById, '/admin/registrationid/<string:registration_number>')
+api.add_resource(EventRegistration, '/registration')
+api.add_resource(EventRegistrationCount, '/event/count')
+api.add_resource(Events, '/event')
+api.add_resource(EventList, '/event/all')
+api.add_resource(ContactAdmin, '/contact')
 
 
 if __name__ == "__main__":

@@ -4,7 +4,6 @@ import boto3
 from botocore.exceptions import ClientError
 from configparser import ConfigParser
 from datetime import datetime
-from bson import json_util
 from werkzeug.utils import secure_filename
 
 from utils.db import db
@@ -97,7 +96,7 @@ class RegistrationMethods:
         """
         try:
             all_registrations=list(cls.registration_collection.find({}, {"_id":0}))
-            return json.loads(json_util.dumps(all_registrations))
+            return all_registrations
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
@@ -113,20 +112,28 @@ class RegistrationMethods:
             user_data = cls.registration_collection.find_one({"registration_number":registration_number,
                                                               "event_name": {"$in": event_name}},
                                                              {"_id":0})
-            return json.loads(json_util.dumps(user_data))
+            return user_data
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
 
     @classmethod
-    def find_count_by_registration_type(cls, registration_type):
+    def get_registration_count_by_event(cls, event_names_list):
         """
-        Finds user details from the database
-        Parameters:Registration Type
-        Returns: Registration Type/None/False
+        Finds registration count for each event from the database
+        Parameters:event_names_list
+        Returns: list of registration count/False
         """
         try:
-            return cls.registration_collection.count_documents({"registration_type":registration_type})
+            count_list = []
+            for event in event_names_list:
+                event = cls.registration_collection.aggregate([
+                     { "$match": { "event_name": event} },
+                     { "$group": {"_id":"&id","event_name":{"$first":"$event_name"},
+                                  "registration_count": { "$sum": "$no_of_tickets" }}}
+                   ])
+                count_list.append(list(event)[0])
+            return count_list
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
@@ -139,7 +146,7 @@ class RegistrationMethods:
         Returns: Registration Details/None/False
         """
         try:
-            event_registrations=list(cls.registration_collection.find({"event_name": {"$in": event_name}}))
+            event_registrations=list(cls.registration_collection.find({"event_name": {"$in": event_name}},{"_id":0}))
             return json.loads(json_util.dumps(event_registrations))
         except errors.PyMongoError as e:
             ## TODO: Logging

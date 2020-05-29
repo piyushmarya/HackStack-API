@@ -266,6 +266,33 @@ Sample response:
 }
 ```
 
+## `/event/count`
+This endpoint can be used to =find count of registration for all events.
+
+Request Type: `GET` <br> 
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Body: `application/json` <br>
+Parameters:<br>
+`None` <br>
+
+Sample request:
+```
+GET: http://127.0.0.1:5000/event/count
+```
+Sample response:
+```
+[
+    {
+        "event_name": "some_event",
+        "registration_count": 123457
+    },
+    {
+        "event_name": "some_event_2",
+        "registration_count": 10
+    }
+]
+```
+
 
 # Contact Us
 

@@ -72,12 +72,6 @@ class Intro(Resource):
                 "Method":"POST"
             },
             {
-                "Endpoint":"/admin/registration/type",
-                "Description":"Get count of registration types",
-                "Header":"jwt_token",
-                "Method":"GET"
-            },
-            {
                 "Endpoint":"/event",
                 "Description":"get events for the admin",
                 "Method":"GET",
@@ -103,6 +97,12 @@ class Intro(Resource):
                 "Method":"GET"
             },
             {
+                "Endpoint":"/event/count",
+                "Description":"get events registration count for the admin",
+                "Method":"GET",
+                "Header":"jwt_token",
+            },
+            {
             "Endpoint":"/contact",
             "Description":"Contact us",
             "Body":{"name":"Firstname Lastname",
@@ -115,5 +115,14 @@ class Intro(Resource):
             "Description":"Contact us",
             "Header":"jwt_token",
             "Method":"GET"
-            }
+            },
+            {
+            "Endpoint":"/contact",
+            "Description":"Contact us",
+            "Body":{"name":"Firstname Lastname",
+                    "email":"someone@something.com",
+                    "message":"Your message"},
+            "Header":"jwt_token",
+            "Method":"Delete"
+            },
         ]}, 200

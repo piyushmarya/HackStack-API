@@ -1,11 +1,10 @@
 import json
 from pymongo import errors
-from bson import json_util
 
 from utils.db import db
 
 class EventMethods():
-    collection = db.events
+    events_collection = db.events
 
     def __init__(self,event_name, username):
         self.event_name = event_name
@@ -18,7 +17,7 @@ class EventMethods():
         Returns: True/False
         """
         try:
-            self.collection.insert_one({"event_name":self.event_name,
+            self.events_collection.insert_one({"event_name":self.event_name,
                                         "username":self.username
                                         })
         except errors.PyMongoError as e:
@@ -36,7 +35,7 @@ class EventMethods():
         Returns: True/False
         """
         try:
-            self.collection.delete_one({"event_name":self.event_name,
+            self.events_collection.delete_one({"event_name":self.event_name,
                                         "username":self.username
                                         })
         except errors.PyMongoError as e:
@@ -57,24 +56,24 @@ class EventMethods():
         """
         try:
             if username:
-                all_events=list(cls.collection.find({"username":username},{"_id":0} ))
+                all_events = list(cls.events_collection.find({"username":username},
+                                                           {"_id":0} ))
             else:
-                all_events=list(cls.collection.find({},{"_id":0}))
-            return json.loads(json_util.dumps(all_events))
+                all_events = list(cls.events_collection.find({},{"_id":0}))
+            return all_events
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
 
-
     @classmethod
     def find_by_event_name(cls, event_name, username=None):
         """
-        Finds a administrator from the database
-        Parameters:Username
-        Returns: AdminDetails/None/False
+        Checks if an event exists in database.
+        Parameters:event_name
+        Returns: event_details/None/False
         """
         try:
-            return cls.collection.find_one({"event_name":event_name})
+            return cls.events_collection.find_one({"event_name":event_name})
         except errors.PyMongoError as e:
             ## TODO: Logging
             return False
