@@ -18,10 +18,10 @@ Installation:
 How to run:
 - Install requirements.txt
     - `pip install -r requirements.txt`
-- Run the following command through terminal (from Project root): 
+- Run the following command through terminal (from Project root):
     - `python3 app.py`
 - If everything is setup correctly, the app will run on http://127.0.0.1:5000/
-   
+
 
 # Authentication
 
@@ -30,7 +30,7 @@ How to run:
 ## `/admin/login`
 This endpoint can be used to login an admin with their username and password.
 
-Request Type: `POST` <br> 
+Request Type: `POST` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `username`: username of the admin <br>
@@ -57,8 +57,8 @@ Sample response:
 
 ## `/admin/logout`
 This endpoint can be used to logout.
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
-Request Type: `GET` <br> 
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
+Request Type: `GET` <br>
 Parameters:<br>
 `None`
 
@@ -76,11 +76,35 @@ Sample response:
 }
 ```
 
+## `/admin/remove`
+This endpoint can be used to delete an admin.<br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
+Request Type: `DELETE` <br>
+Parameters:<br>
+`username`: username of the admin <br>
+
+Sample request:
+```
+DELETE: http://127.0.0.1:5000/admin/remove
+{
+    'username':'username'
+}
+```
+Sample response:
+```
+{
+    "message": "Admin successfully deleted",
+    "code": "S3",
+    "time": "some_time",
+    "status": "Success"
+}
+```
+
 ## `/admin/changepwd`
 This endpoint can be used to change an admin's password.
 
-Request Type: `POST` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `POST` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `username`: username of the admin <br>
@@ -108,10 +132,9 @@ Sample response:
 
 ## `/admin/register`
 This endpoint can be used to register a new admin.
-`CAN ONLY BE USED BY THE SUPERADMIN`
 
-Request Type: `POST` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `POST` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `username`: username of the admin <br>
@@ -138,8 +161,8 @@ Sample response:
 ## `/admin/id`
 This endpoint can be used to get uuid and name of an admin.
 
-Request Type: `GET` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `GET` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Parameters:<br>
 `None`
 
@@ -161,8 +184,8 @@ Sample response:
 This endpoint can be used to get a list of all admins.
 `CAN ONLY BE USED BY THE SUPERADMIN`
 
-Request Type: `POST` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `POST` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Parameters:<br>
 `None`
 
@@ -190,8 +213,8 @@ Sample response:
 ## `/event`
 This endpoint can be used to create a new event
 
-Request Type: `POST` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `POST` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `event_name`: name of the event <br>
@@ -200,7 +223,7 @@ Sample request:
 ```
 POST: http://127.0.0.1:5000/admin/login
 {
-    'event_name':'some_event'\
+    'event_name':'some_event'
 }
 ```
 Sample response:
@@ -216,8 +239,8 @@ Sample response:
 ## `/event`
 This endpoint can be used to get a list of all events for the logged-in admin.
 
-Request Type: `GET` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `GET` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `None`
@@ -236,15 +259,15 @@ Sample response:
         "event_name": "Sample2",
         "username": "name_of_the_admin_who_hosted_the_event"
     },
-    
+
 ]
 ```
 
 ## `/event`
 This endpoint can be used to delete an event.
 
-Request Type: `DELETE` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `DELETE` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `event_name`: name of the event <br>
@@ -267,10 +290,10 @@ Sample response:
 ```
 
 ## `/event/count`
-This endpoint can be used to =find count of registration for all events.
+This endpoint can be used to find count of registration for all events.
 
-Request Type: `GET` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `GET` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `None` <br>
@@ -299,7 +322,7 @@ Sample response:
 ## `/contact`
 This endpoint can be used to save a message to database from a user.
 
-Request Type: `POST` <br> 
+Request Type: `POST` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `name`: name of the user <br>
@@ -331,10 +354,10 @@ Sample response:
 ## `/registration`
 This endpoint can be used to make a person register for an event.
 
-Request Type: `POST` <br> 
+Request Type: `POST` <br>
 Request Body: `form_data` <br>
 Parameters:<br>
-`name`: name/ <br>
+`name`: name <br>
 `email`: email <br>
 `type`: self/corporate/group/others <br>
 `mobile_number`: mobile number <br>
@@ -357,8 +380,8 @@ Sample response:
 ## `/registration`
 This endpoint can be used to fetch a list of all registrations hosted by the logged in admin.
 
-Request Type: `GET` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `GET` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Request Body: `application/json` <br>
 Parameters:<br>
 `None`
@@ -396,8 +419,8 @@ Sample response:
 ## `/registration/<string:registration_number>`
 This endpoint can be used to get the details of registration using the registration number.
 
-Request Type: `GET` <br> 
-Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br> 
+Request Type: `GET` <br>
+Request Header: `key:Authentication`, `value:Bearer {{access_token}}` <br>
 Parameters:<br>
 `None`
 

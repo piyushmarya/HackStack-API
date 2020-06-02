@@ -1,12 +1,13 @@
-from configparser import ConfigParser
+# Creates a Db connection.
+
+# Importing all required libraries.
 from pymongo import MongoClient
 
-parser = ConfigParser()
+# Importing all required modules.
+from utils.config_parser import parser
 
 try:
-    parser.read('configurations/config.ini')
     conn = MongoClient(parser.get('DATABASE', 'URL'))
     db = conn.hackathon
 except Exception as e:
-    ## TODO: Logging
-    pass
+    print(e)

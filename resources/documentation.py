@@ -1,3 +1,6 @@
+# Creates basic documentation of routes.
+
+# Importing all required libraries.
 from flask_restful import Resource
 
 
@@ -30,6 +33,13 @@ class Intro(Resource):
                 "Body":{"username":"username",
                         "new_password":"new password",
                         "old_password":"old password"},
+                "Header":"jwt_token",
+                "Method":"POST"
+            },
+            {
+                "Endpoint":"/admin/remove",
+                "Description":"Delete Admin",
+                "Body":{"username":"username"},
                 "Header":"jwt_token",
                 "Method":"POST"
             },

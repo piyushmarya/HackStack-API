@@ -1,3 +1,6 @@
+# Error and Success Message handling.
+
+# Importing all required modules.
 from datetime import datetime
 
 class Codes:
@@ -24,6 +27,7 @@ class Codes:
             }
 
 
+# Creating objects for each message.
 INVALID_CREDENTIALS_ERROR = Codes("The entered credentials are invalid.", "E3", "Enter the correct credentials and try again")
 REGISTER_ADMIN_ERROR = Codes("Administrator not registered", "E2", "Register admin before trying again.")
 INSUFFICIENT_PRIVELEGES_ERROR = Codes("You dont have the adequate priveleges for this operation", "E1", "Contact us to get priveleges.")
@@ -47,7 +51,7 @@ MESSAGE_SEND_ERROR = Codes("Unable to send message,try again later", "E20", "Int
 MESSAGE_DELETE_ERROR = Codes("Unable to delete message,try again later", "E21", "Internal server error, try again later.")
 MESSAGE_LOAD_ERROR = Codes("Unable to load messages,try again later", "E22", "Internal server error, try again later.")
 PASSWORD_CHANGED = Codes("Password successfully changed","S2")
-ADMIN_CREATED = Codes("New admin successfully created","S1")
+ADMIN_CREATED = Codes("New admin successfully created, Login to access more features","S1")
 ADMIN_DELETED = Codes("Admin successfully deleted", "S3")
 EVENT_ADDED =Codes("New event added successfully", "S4")
 EVENT_DELETED = Codes("Event deleted successfully", "S5")
